@@ -27,7 +27,7 @@ class RecipeResourceSpec extends Specification {
     @Autowired
     private RecipeRepository recipeRepository
     @Autowired
-    private CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository
 
     def "should create recipe"() {
         given:
