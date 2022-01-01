@@ -14,6 +14,11 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Entity
+@Table(
+    indexes = {
+        @Index(name = "title_idx", columnList = "title", unique = true)
+    }
+)
 @NamedEntityGraph(
     name = "Category",
     attributeNodes = {

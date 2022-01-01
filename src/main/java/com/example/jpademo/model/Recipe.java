@@ -14,6 +14,11 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Entity
+@Table(
+    indexes = {
+        @Index(name = "title_idx", columnList = "title")
+    }
+)
 @NamedEntityGraph(
     name = "Recipe",
     attributeNodes = {
@@ -25,6 +30,7 @@ public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private String title;
     private String description;
 
