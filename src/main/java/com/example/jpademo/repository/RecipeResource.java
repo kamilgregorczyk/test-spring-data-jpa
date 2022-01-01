@@ -1,13 +1,14 @@
 package com.example.jpademo.repository;
 
 import com.example.jpademo.model.Category;
-import com.example.jpademo.model.Ingredient;
+import com.example.jpademo.model.Note;
 import com.example.jpademo.model.Recipe;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,54 +30,60 @@ public class RecipeResource {
     private final CategoryRepository categoryRepository;
 
     @Autowired
-    public RecipeResource(RecipeRepository recipeRepository, CategoryRepository categoryRepository) {
+    public RecipeResource(RecipeRepository recipeRepository,
+                          CategoryRepository categoryRepository) {
         this.recipeRepository = recipeRepository;
         this.categoryRepository = categoryRepository;
     }
 
     @PostMapping("/recipes")
+    @Transactional
     public ResponseEntity createRecipe(@RequestBody @Valid CreateRecipeRequest request) {
         final var recipe = new Recipe();
         recipe.setTitle(request.title);
         recipe.setDescription(request.description);
         recipe.setCategories(request.categories.stream().map(c -> getOrCreateCategory(c, recipe)).collect(toUnmodifiableSet()));
-        recipe.setIngredients(request.ingredients.stream().map(i -> {
-            final var ingredient = new Ingredient();
-            ingredient.setTitle(i.title);
-            ingredient.setDescription(i.description);
-            ingredient.setRecipe(recipe);
-            return ingredient;
-        }).collect(toUnmodifiableSet()));
+        recipe.setNotes(request.notes.stream().map(i -> createNote(i, recipe)).collect(toUnmodifiableSet()));
         return status(HttpStatus.CREATED).body(Map.of("id", recipeRepository.save(recipe).getId()));
     }
 
     @GetMapping("/recipes/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<RecipeResponse> getRecipe(@PathVariable("id") Long id) {
         return recipeRepository.findById(id)
             .map(recipe -> ok().body(recipeToResponse(recipe))).orElseGet(() -> notFound().build());
     }
 
-    private Category getOrCreateCategory(CreateCategoryRequest c, Recipe recipe) {
-        return categoryRepository.findByTitle(c.getTitle())
+    private Category getOrCreateCategory(CreateCategoryRequest categoryRequest, Recipe recipe) {
+        return categoryRepository.findByTitle(categoryRequest.getTitle())
             .map(category -> {
                 category.getRecipes().add(recipe);
                 return category;
             })
             .orElseGet(() -> {
                 final var category = new Category();
-                category.setTitle(c.getTitle());
+                category.setTitle(categoryRequest.getTitle());
                 category.getRecipes().add(recipe);
                 return categoryRepository.save(category);
             });
+    }
+
+    private Note createNote(CreateNoteRequest noteRequest, Recipe recipe) {
+        final var note = new Note();
+        note.setTitle(noteRequest.title);
+        note.setDescription(noteRequest.description);
+        note.setRecipe(recipe);
+        return note;
+
     }
 
     private static RecipeResponse recipeToResponse(Recipe recipe) {
         return RecipeResponse.recipeResponse()
             .title(recipe.getTitle())
             .description(recipe.getDescription())
-            .ingredients(recipe.getIngredients().stream()
-                .map(RecipeResource::ingredientToResponse)
-                .sorted(comparing(IngredientResponse::getTitle))
+            .notes(recipe.getNotes().stream()
+                .map(RecipeResource::noteToResponse)
+                .sorted(comparing(NoteResponse::getTitle))
                 .collect(toUnmodifiableList()))
             .categories(recipe.getCategories().stream()
                 .map(RecipeResource::categoryToResponse)
@@ -85,8 +92,8 @@ public class RecipeResource {
             .build();
     }
 
-    private static IngredientResponse ingredientToResponse(Ingredient ingredient) {
-        return IngredientResponse.ingredientResponse().title(ingredient.getTitle()).description(ingredient.getDescription()).build();
+    private static NoteResponse noteToResponse(Note note) {
+        return NoteResponse.noteResponse().title(note.getTitle()).description(note.getDescription()).build();
     }
 
     public static CategoryResponse categoryToResponse(Category category) {
@@ -104,14 +111,14 @@ public class RecipeResource {
         public String description;
 
         @NotEmpty
-        public Set<CreateIngredientRequest> ingredients;
+        public Set<CreateNoteRequest> notes;
 
         @NotEmpty
         public Set<CreateCategoryRequest> categories;
     }
 
     @Data
-    static class CreateIngredientRequest {
+    static class CreateNoteRequest {
         @NotBlank
         public String title;
 
@@ -130,13 +137,13 @@ public class RecipeResource {
     static class RecipeResponse {
         public String title;
         public String description;
-        public List<IngredientResponse> ingredients;
+        public List<NoteResponse> notes;
         public List<CategoryResponse> categories;
     }
 
     @Data
-    @Builder(builderMethodName = "ingredientResponse")
-    static class IngredientResponse {
+    @Builder(builderMethodName = "noteResponse")
+    static class NoteResponse {
         public String title;
         public String description;
     }

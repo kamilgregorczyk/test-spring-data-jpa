@@ -19,12 +19,12 @@ import javax.persistence.*;
     }
 )
 @NamedEntityGraph(
-    name = "Ingredient",
+    name = "Note",
     attributeNodes = {
         @NamedAttributeNode("recipe")
     }
 )
-public class Ingredient {
+public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

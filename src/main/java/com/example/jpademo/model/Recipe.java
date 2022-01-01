@@ -22,7 +22,7 @@ import java.util.Set;
 @NamedEntityGraph(
     name = "Recipe",
     attributeNodes = {
-        @NamedAttributeNode(value = "ingredients"),
+        @NamedAttributeNode(value = "notes"),
         @NamedAttributeNode("categories")
     }
 )
@@ -36,9 +36,13 @@ public class Recipe {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
     @ToString.Exclude
-    private Set<Ingredient> ingredients = new HashSet<>();
+    private Set<Note> notes = new HashSet<>();
+
 
     @ManyToMany
+    @JoinTable(name = "recipe_to_category",
+        joinColumns = @JoinColumn(name = "recipe_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id"))
     @ToString.Exclude
     private Set<Category> categories = new HashSet<>();
 
