@@ -30,34 +30,35 @@ class RecipeResourceSpec extends Specification {
     def "should create recipe"() {
         given:
         def mapper = new ObjectMapper()
-        def request = mapper.writerWithDefaultPrettyPrinter().writeValueAsString([
+        def request = mapper.writerWithDefaultPrettyPrinter()
+            .writeValueAsString([
                 title      : "Title",
                 description: "Description",
                 ingredients: [
-                        [
-                                title      : "a",
-                                description: "a"
-                        ],
-                        [
-                                title      : "b",
-                                description: "b"
-                        ]
+                    [
+                        title      : "a",
+                        description: "a"
+                    ],
+                    [
+                        title      : "b",
+                        description: "b"
+                    ]
                 ],
                 categories : [
-                        [
-                                title: "cat3"
-                        ]
+                    [
+                        title: "cat3"
+                    ]
                 ]
-        ])
+            ])
 
         when:
         def response = mvc.perform(post("/recipes")
-                .contentType(APPLICATION_JSON)
-                .content(request))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString()
+            .contentType(APPLICATION_JSON)
+            .content(request))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString()
 
         then:
         assertEquals(response, new JSONObject(["id": 1]), true)
@@ -72,35 +73,37 @@ class RecipeResourceSpec extends Specification {
     def "should create recipe and not duplicate categories"() {
         given:
         def mapper = new ObjectMapper()
-        def request = mapper.writerWithDefaultPrettyPrinter().writeValueAsString([
+        def request = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(
+            [
                 title      : "Title",
                 description: "Description",
                 ingredients: [
-                        [
-                                title      : "a",
-                                description: "a"
-                        ],
-                        [
-                                title      : "b",
-                                description: "b"
-                        ]
+                    [
+                        title      : "a",
+                        description: "a"
+                    ],
+                    [
+                        title      : "b",
+                        description: "b"
+                    ]
                 ],
                 categories : [
-                        [
-                                title: "cat1"
-                        ]
+                    [
+                        title: "cat1"
+                    ]
                 ]
-        ])
+            ]
+        )
 
         when:
         2.times {
             mvc.perform(post("/recipes")
-                    .contentType(APPLICATION_JSON)
-                    .content(request))
-                    .andExpect(status().isCreated())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString()
+                .contentType(APPLICATION_JSON)
+                .content(request))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString()
         }
 
         then:
@@ -113,69 +116,72 @@ class RecipeResourceSpec extends Specification {
     def "should get recipe"() {
         given:
         def mapper = new ObjectMapper()
-        def request = mapper.writerWithDefaultPrettyPrinter().writeValueAsString([
+        def request = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(
+            [
                 title      : "Title",
                 description: "Description",
                 ingredients: [
-                        [
-                                title      : "a",
-                                description: "a"
-                        ],
-                        [
-                                title      : "b",
-                                description: "b"
-                        ]
+                    [
+                        title      : "a",
+                        description: "a"
+                    ],
+                    [
+                        title      : "b",
+                        description: "b"
+                    ]
                 ],
                 categories : [
-                        [
-                                title: "cat1"
-                        ],
-                        [
-                                title: "cat2"
-                        ]
+                    [
+                        title: "cat1"
+                    ],
+                    [
+                        title: "cat2"
+                    ]
                 ]
-        ])
+            ]
+        )
         and: "create recipe"
         def createdRecipe = mvc.perform(post("/recipes")
-                .contentType(APPLICATION_JSON)
-                .content(request))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString()
+            .contentType(APPLICATION_JSON)
+            .content(request))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString()
         def createdRecipeId = mapper.readTree(createdRecipe).get("id").asLong()
 
         when:
         def response = mvc.perform(get("/recipes/${createdRecipeId}"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString()
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString()
 
 
         then:
-        assertEquals(response, new JSONObject([
+        assertEquals(response, new JSONObject(
+            [
                 title      : "Title",
                 description: "Description",
                 ingredients: [
-                        [
-                                title      : "a",
-                                description: "a"
-                        ],
-                        [
-                                title      : "b",
-                                description: "b"
-                        ]],
+                    [
+                        title      : "a",
+                        description: "a"
+                    ],
+                    [
+                        title      : "b",
+                        description: "b"
+                    ]
+                ],
                 categories : [
-                        [
-                                title: "cat1"
-                        ],
-                        [
-                                title: "cat2"
-                        ]
+                    [
+                        title: "cat1"
+                    ],
+                    [
+                        title: "cat2"
+                    ]
                 ]
-
-        ]), true)
+            ]), true)
 
     }
 }
