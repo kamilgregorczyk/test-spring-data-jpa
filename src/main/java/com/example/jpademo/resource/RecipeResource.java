@@ -8,7 +8,6 @@ import com.example.jpademo.repository.RecipeRepository;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +22,7 @@ import java.util.Set;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static java.util.stream.Collectors.toUnmodifiableSet;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.ResponseEntity.*;
 
 @RestController
@@ -46,14 +46,15 @@ public class RecipeResource {
         recipe.setDescription(request.description);
         recipe.setCategories(request.categories.stream().map(c -> getOrCreateCategory(c, recipe)).collect(toUnmodifiableSet()));
         recipe.setNotes(request.notes.stream().map(i -> createNote(i, recipe)).collect(toUnmodifiableSet()));
-        return status(HttpStatus.CREATED).body(Map.of("id", recipeRepository.save(recipe).getId()));
+        return status(CREATED).body(Map.of("id", recipeRepository.save(recipe).getId()));
     }
 
     @GetMapping("/recipes/{id}")
     @Transactional(readOnly = true)
     public ResponseEntity<RecipeResponse> getRecipe(@PathVariable("id") Long id) {
         return recipeRepository.findById(id)
-            .map(recipe -> ok().body(recipeToResponse(recipe))).orElseGet(() -> notFound().build());
+            .map(recipe -> ok().body(recipeToResponse(recipe)))
+            .orElseGet(() -> notFound().build());
     }
 
     private Category getOrCreateCategory(CreateCategoryRequest categoryRequest, Recipe recipe) {
