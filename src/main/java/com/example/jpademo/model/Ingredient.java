@@ -9,6 +9,12 @@ import javax.persistence.*;
 @ToString
 @NoArgsConstructor
 @Entity
+@NamedEntityGraph(
+    name = "Ingredient",
+    attributeNodes = {
+        @NamedAttributeNode("recipe")
+    }
+)
 public class Ingredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

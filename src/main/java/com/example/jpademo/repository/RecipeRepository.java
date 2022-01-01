@@ -1,17 +1,20 @@
 package com.example.jpademo.repository;
 
 import com.example.jpademo.model.Recipe;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface RecipeRepository extends CrudRepository<Recipe, Long> {
+public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
-    @Override
-    List<Recipe> findAll();
-
+    @EntityGraph(value = "Recipe")
     Optional<Recipe> findByTitle(String title);
 
+    @EntityGraph(value = "Recipe")
     List<Recipe> findAllByTitle(String title);
+
+    @EntityGraph(value = "Recipe")
+    Optional<Recipe> findById(Long id);
 }

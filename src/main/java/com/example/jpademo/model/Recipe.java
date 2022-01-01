@@ -14,6 +14,13 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Entity
+@NamedEntityGraph(
+    name = "Recipe",
+    attributeNodes = {
+        @NamedAttributeNode(value = "ingredients"),
+        @NamedAttributeNode("categories")
+    }
+)
 public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
