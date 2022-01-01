@@ -1,4 +1,4 @@
-package com.example.jpademo;
+package com.example.jpademo.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

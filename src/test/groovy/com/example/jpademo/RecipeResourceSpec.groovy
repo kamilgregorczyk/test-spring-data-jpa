@@ -1,5 +1,7 @@
 package com.example.jpademo
 
+import com.example.jpademo.repository.CategoryRepository
+import com.example.jpademo.repository.RecipeRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired

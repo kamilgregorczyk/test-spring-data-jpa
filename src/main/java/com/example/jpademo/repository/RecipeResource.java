@@ -1,5 +1,8 @@
-package com.example.jpademo;
+package com.example.jpademo.repository;
 
+import com.example.jpademo.model.Category;
+import com.example.jpademo.model.Ingredient;
+import com.example.jpademo.model.Recipe;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;

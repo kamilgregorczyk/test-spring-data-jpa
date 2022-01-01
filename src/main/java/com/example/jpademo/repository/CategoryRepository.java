@@ -1,5 +1,6 @@
-package com.example.jpademo;
+package com.example.jpademo.repository;
 
+import com.example.jpademo.model.Category;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
